@@ -1,6 +1,4 @@
-# AWS Projects
-
-## Project 2
+# Project 2
 
 ## 📝 Branch Overview
 
