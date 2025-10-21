@@ -1,0 +1,326 @@
+{
+	"info": {
+		"_postman_id": "f9c276bf-3cf1-4319-931a-5b37ff145410",
+		"name": "lambda-dynamo-demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41779189"
+	},
+	"item": [
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Retreive all employees.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FUNCTION_URL}}/employees",
+							"host": [
+								"{{FUNCTION_URL}}"
+							],
+							"path": [
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retreive employee by id.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FUNCTION_URL}}/employees/:id",
+							"host": [
+								"{{FUNCTION_URL}}"
+							],
+							"path": [
+								"employees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST",
+			"item": [
+				{
+					"name": "Create an employee.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate random age between 20 and 60\r",
+									"let age = Math.floor(Math.random() * 41) + 20;\r",
+									"\r",
+									"// Randomly pick gender\r",
+									"let genders = [\"Male\", \"Female\"];\r",
+									"let gender = genders[Math.floor(Math.random() * genders.length)];\r",
+									"\r",
+									"// Set environment variables\r",
+									"pm.environment.set(\"age\", age);\r",
+									"pm.environment.set(\"gender\", gender);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", () => {\r",
+									"  pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const employeeId = pm.response.json().id;\r",
+									"const FUNCTION_URL = pm.collectionVariables.get(\"FUNCTION_URL\");\r",
+									"pm.sendRequest(`${FUNCTION_URL}/employees/${employeeId}`, function (err, response) {\r",
+									"    pm.test(\"GET created employee returns 200\", function () {\r",
+									"        pm.expect(response.code).to.equal(200);\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{$randomFullName}}\",\r\n    \"age\": {{age}},\r\n    \"gender\": \"{{gender}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FUNCTION_URL}}/employees",
+							"host": [
+								"{{FUNCTION_URL}}"
+							],
+							"path": [
+								"employees"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PUT",
+			"item": [
+				{
+					"name": "Update an employee by id.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const attributes = [\"name\", \"age\", \"gender\"];\r",
+									"const attribute = attributes[Math.floor(Math.random() * attributes.length)];\r",
+									"let value;\r",
+									"\r",
+									"switch (attribute) {\r",
+									"    case \"name\":\r",
+									"        value = pm.variables.replaceIn(\"{{$randomFullName}}\");\r",
+									"        break;\r",
+									"    case \"age\":\r",
+									"        value = Math.floor(Math.random() * 41) + 20; // 20–60\r",
+									"        break;\r",
+									"    case \"gender\":\r",
+									"        value = [\"Male\", \"Female\"][Math.floor(Math.random() * 2)];\r",
+									"        break;\r",
+									"}\r",
+									"\r",
+									"pm.environment.set(\"attribute\", attribute);\r",
+									"\r",
+									"if (typeof value === \"number\") {\r",
+									"    pm.environment.set(\"value\", value);\r",
+									"} else {\r",
+									"    pm.environment.set(\"value\", `\"${value}\"`);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"attribute\": \"{{attribute}}\",\r\n    \"value\": {{value}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FUNCTION_URL}}/employees/:id",
+							"host": [
+								"{{FUNCTION_URL}}"
+							],
+							"path": [
+								"employees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DELETE",
+			"item": [
+				{
+					"name": "Delete an employee by id.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status Code is 204\", () => {\r",
+									"    pm.response.to.have.status(204);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{FUNCTION_URL}}/employees/:id",
+							"host": [
+								"{{FUNCTION_URL}}"
+							],
+							"path": [
+								"employees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "FUNCTION_URL",
+			"value": ""
+		}
+	]
+}
