@@ -1,0 +1,16 @@
+Partition Key -> Select Items
+Sort Key -> Arrange Items
+
+Projection Expressions -> Retrieve specific attributes from items
+Condition Expressions -> Execute a command only if the expression evaluates to true.
+Update Expressions -> Update particular attributes of an item
+
+    SET: Used to add an attribute to an Item or modify an existing attribute;
+    REMOVE: Used to delete attributes from an Item.
+    ADD: Used to increment/decrement a Number or insert elements into a Set.
+    DELETE: Used to remove items from a Set.
+Key condition expressions -> Query a table with a composite primary key to limit the items selected. 
+Filter expressions -> filter the results of queries and scans according to other attributes
+
+Expression Attribute Names -> Aliases for attributes
+Expression Attribute Values -> Aliases for values
