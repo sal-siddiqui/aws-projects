@@ -1,18 +1,47 @@
-# AWS Projects
+Run the template. Pass in 3 parameters:
+• DBInstanceMasterPassword
+• PhotoBucketName – give a unique bucket name to store the photos
+• StaticBucketName – give a unique bucket name to store the application zip
 
-## 📁 Repository Overview
+The template creates:
+• VPC, Subnets, IGW
+• RDS database, subnet group, security group
+• Dynamo table: Employees
+• Instance-role
+• Check the output for a link to the zip we build, it will look like this: https://emp3-application.s3.amazonaws.com/corp-app.zip
 
-This repository contains a collection of AWS projects built for learning and hands-on practice. The projects explore different AWS services using technologies like Flask, Bulma, Alpine.js, and Angular.
+# Create the RDS app
 
-Each project lives in its own branch, and you’ll find a short overview of what each one does below.
+Create an ec2 instance:
+• VPC: app-vpc
+• Subnet: any public
+• User-data
 
-## Project 1 - Launching an EC2 Instance
+#!/bin/bash -ex
+wget [insert the CF output zip here]
+unzip corp-app.zip
+./install_launch.sh
 
-This project walks through launching an EC2 instance and setting it up with Nginx as a web server.
-The server displays key instance details — such as the instance ID, type, and region — to give a simple, practical look at AWS compute and deployment basics.
+• Security group: web-security-group
 
+# Create the Dynamo app
 
-## Project 2 - Creating a CRUD Application with Lambda & DynamoDB
+Create an ec2 instance:
+• VPC: default vpc okay
+• Subnet: any public
+• User-data
 
-In this project, we use AWS Lambda and DynamoDB to build a basic CRUD (Create, Read, Update, Delete) application.
-You’ll also learn how to provision the infrastructure using the AWS CLI, giving you hands-on experience with serverless architecture and infrastructure-as-code concepts.
+#!/bin/bash -ex
+wget [insert the CF output zip here]
+unzip corp-app.zip
+./install_launch_dynamo.sh
+
+• Security group: web-security-group
+
+# Creating the zip
+
+git archive --format=zip -o ~/corp-app.zip HEAD
+
+# put the zip somewhere public
+
+aws s3 cp ~/corp-app.zip s3://us-west-2-tcdev/labs/ --profile awsu

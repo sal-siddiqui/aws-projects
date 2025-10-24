@@ -1,0 +1,16 @@
+#!/bin/bash -ex
+
+yum -y install python3-pip git stress
+
+git clone https://github.com/sal-siddiqui/aws-flask-app.git
+
+cd aws-flask-app
+pip install -r requirements.txt
+
+export PHOTOS_BUCKET=aws-flask-app-147779121814
+
+export AWS_DEFAULT_REGION=us-east-1
+export DYNAMO_MODE=on
+export FLASK_APP=application.py
+
+/usr/local/bin/flask run --host=0.0.0.0 --port=80

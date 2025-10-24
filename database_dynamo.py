@@ -31,12 +31,7 @@ def add_employee(object_key, full_name, location, job_title, badges):
     try:
         dynamodb = boto3.resource("dynamodb")
         table = dynamodb.Table("Employees")
-        item = {
-            "id": str(uuid.uuid4()),
-            "full_name": full_name,
-            "job_title": job_title,
-            "location": location,
-        }
+        item = {"id": str(uuid.uuid4()), "full_name": full_name, "job_title": job_title, "location": location}
         if object_key:
             item["object_key"] = object_key
         if badges:

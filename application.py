@@ -204,25 +204,28 @@ def save():
     key = None
     if form.validate_on_submit():
         if form.photo.data:
-            image_bytes = util.resize_image(form.photo.data, (120, 160))
-            if image_bytes:
-                try:
-                    # save the image to s3
-                    prefix = "employee_pic/"
-                    key = prefix + util.random_hex_bytes(8) + ".png"
-                    s3_client.put_object(
-                        Bucket=config.PHOTOS_BUCKET,
-                        Key=key,
-                        Body=image_bytes,
-                        ContentType="image/png",
-                    )
-                except:
-                    pass
+            try:
+                # save the image to s3
+                original_name = form.photo.data.filename
+                prefix = "uploaded_pics/"
+                key = prefix + original_name
+                thumbnail_key = key.replace("uploaded_pics", "thumbnails").replace(
+                    ".jpg", ".png"
+                )
+                image_bytes = form.photo.data.read()
+                s3_client.put_object(
+                    Bucket=config.PHOTOS_BUCKET,
+                    Key=key,
+                    Body=image_bytes,
+                    ContentType="image/png",
+                )
+            except:
+                pass
 
         if form.employee_id.data:
             database.update_employee(
                 form.employee_id.data,
-                key,
+                thumbnail_key,
                 form.full_name.data,
                 form.location.data,
                 form.job_title.data,
@@ -230,7 +233,7 @@ def save():
             )
         else:
             database.add_employee(
-                key,
+                thumbnail_key,
                 form.full_name.data,
                 form.location.data,
                 form.job_title.data,
@@ -309,6 +312,11 @@ def view(employee_id):
 @application.route("/delete/<employee_id>")
 def delete(employee_id):
     "delete employee route"
+    employee = database.load_employee(employee_id)
+    print(employee)
+    s3_client = boto3.client("s3")
+    print(employee["object_key"])
+    s3_client.delete_object(Bucket=config.PHOTOS_BUCKET, Key=employee["object_key"])
     database.delete_employee(employee_id)
     flash("Deleted!")
     return redirect(url_for("home"))
